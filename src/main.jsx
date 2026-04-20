@@ -31,7 +31,7 @@ const publications = [
     title: 'Vision and Tracking in a Smart AI Kitchen for Older Adults',
     venue: 'Meeting of the Minds (CMU Research Symposium), 2025 — submitted to WAVC',
     summary:
-      'we propose a system that uses multiple RGB-D cameras and zero-shot object detection models to identify and track items in 3D as they are being used in a kitchen.',
+      'We propose a system that uses multiple RGB-D cameras and zero-shot object detection models to identify and track items in 3D as they are being used in a kitchen.',
   },
   {
     title: 'The Implications of Using AI and Dance',
@@ -54,7 +54,7 @@ const experiences = [
     team: 'Reliable Autonomous Systems Lab, CMU',
     period: '2025 - Present',
     summary:
-      'Building AI systems that stay reliable under uncertainty while directly supporting users in real-world tasks.',
+      ' I\'ve spearheaded the Vision and Tracking in a Smart AI Kitchen project, which is a multi-camera pipeline that detects objects in each camera, consolidates these detections into a 3D global space, and tracks their semantic locations throughout the kitchen (whether they\'re in a cabinet or in the fridge). My group refined this system so that objects can still be accurately tracked, even when they are occluded in a cluttered kitchen environment.',
   },
 ];
 
