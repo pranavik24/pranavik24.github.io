@@ -20,7 +20,8 @@ const projects = [
     href: 'https://github.com/pranavik24/steel-city-bot',
     description:
       'SteelCityBot is a retrieval-augmented generation (RAG) system that answers questions about Pittsburgh and CMU by combining document retrieval with LLM-based response generation.',
-    image: '/github_profile.png',
+    image:
+      '/github_profile.png',
     tags: ['RAG', 'LLMs', 'Document Retrieval'],
   },
 ];
@@ -28,7 +29,7 @@ const projects = [
 const publications = [
   {
     title: 'Vision and Tracking in a Smart AI Kitchen for Older Adults',
-    venue: 'Meeting of the Minds (CMU Research Symposium), 2025 -- submitted to WAVC',
+    venue: 'Meeting of the Minds (CMU Research Symposium), 2025 — submitted to WAVC',
     summary:
       'we propose a system that uses multiple RGB-D cameras and zero-shot object detection models to identify and track items in 3D as they are being used in a kitchen.',
   },
@@ -36,7 +37,7 @@ const publications = [
     title: 'The Implications of Using AI and Dance',
     venue: 'May 2024',
     summary:
-      'Literature review and synthesis in whether generative AI has the capabilities to create choreography that is creative and emotionally powerful',
+      'Literature review and synthesis in whether generative AI has the capabilities to create choreography that is creative and emotionally powerful. ',
   },
 ];
 
@@ -139,23 +140,8 @@ function App() {
                 <p>
                   I'm a junior studying Artificial Intelligence at Carnegie Mellon 
                   Univeristy. Currently, I'm working as an undergraduate AI researcher
-                  at the{' '}
-                  <a
-                    href="https://www.ri.cmu.edu/robotics-groups/reliable-autonomous-systems-lab/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Reliable Autonomous Systems Lab
-                  </a>{' '}
-                  at CMU, under the guidance of Professor{' '}
-                  <a
-                    href="https://www.ri.cmu.edu/ri-faculty/reid-simmons/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Reid Simmons
-                  </a>
-                  . Here, my work is centered around around 
+                  at the Reliable Autonomous Systems Lab at CMU, under the guidance of
+                  Professor Reid Simmons. Here, my work is centered around around 
                   building AI systems that remain reliable under uncertainty while 
                   directly supporting users in real-world tasks. 
                 </p>
