@@ -1,7 +1,6 @@
 # Portfolio
 
-A React portfolio site with sections for About, Projects, and Publications.
-
+My Portofolio containing all my experiences, projects, and research! 
 ## Local Development
 
 ```bash
