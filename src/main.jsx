@@ -2,6 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
+const asset = (file) => `${import.meta.env.BASE_URL}${file}`;
+
 const projects = [
   {
     title: 'Octomind - Calender and Task Manager',
@@ -9,7 +11,7 @@ const projects = [
     href: 'https://github.com/pranavik24/task-manager',
     description:
       'A calendar and task scheduling application that can automatically schedule your tasks throughout the week.',
-    image: '/project1.png',
+    image: asset('project1.png'),
     imageFit: 'contain',
     imagePosition: 'top left',
     tags: ['React', 'Ollama', 'Scheduling'],
@@ -20,8 +22,7 @@ const projects = [
     href: 'https://github.com/pranavik24/steel-city-bot',
     description:
       'SteelCityBot is a retrieval-augmented generation (RAG) system that answers questions about Pittsburgh and CMU by combining document retrieval with LLM-based response generation.',
-    image:
-      '/github_profile.png',
+    image: asset('github_profile.png'),
     tags: ['RAG', 'LLMs', 'Document Retrieval'],
   },
 ];
@@ -152,7 +153,7 @@ function App() {
               </div>
               <figure className="image-note">
                 <img
-                  src="/me3.png"
+                  src={asset('me3.png')}
                   alt="Me, Pranavi Kondapalli, in front of a chalet on my trip to the Swiss Alps"
                 />
                 <figcaption>me.jpeg</figcaption>
