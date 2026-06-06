@@ -803,7 +803,7 @@ function App() {
                 <h2>Let's connect</h2>
               </div>
               <p>
-                I am always excited to talk about AI systems, research ideas, campus projects, and thoughtful product work.
+                I'm always excited to meet new peoples and talk about new technologies!
               </p>
               <div className="connect-actions">
                 <a href={links.email}>
