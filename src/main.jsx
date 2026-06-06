@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { getFunListens, hasSharedCounter, incrementFunListens } from './sharedCounter';
 import './styles.css';
 
 const asset = (file) => `${import.meta.env.BASE_URL}${file}`;
@@ -279,6 +280,26 @@ function App() {
     if (savedListens) {
       setFunListens(Number(savedListens));
     }
+
+    if (!hasSharedCounter) {
+      return undefined;
+    }
+
+    let isMounted = true;
+    getFunListens()
+      .then((sharedListens) => {
+        if (isMounted && sharedListens !== null) {
+          setFunListens(sharedListens);
+          localStorage.setItem('funListens', String(sharedListens));
+        }
+      })
+      .catch((error) => {
+        console.warn(error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const playableItems = useMemo(
@@ -433,13 +454,27 @@ function App() {
     setIsPlaying((playing) => !playing);
   };
 
-  const handleFunListen = () => {
+  const handleFunListen = async () => {
     const nextListens = funListens + 1;
     setFunListens(nextListens);
     localStorage.setItem('funListens', String(nextListens));
     setIsFunAnimating(true);
     window.clearTimeout(funAnimationTimerRef.current);
     funAnimationTimerRef.current = window.setTimeout(() => setIsFunAnimating(false), 1500);
+
+    if (!hasSharedCounter) {
+      return;
+    }
+
+    try {
+      const sharedListens = await incrementFunListens();
+      if (sharedListens !== null) {
+        setFunListens(sharedListens);
+        localStorage.setItem('funListens', String(sharedListens));
+      }
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   const scrollProjects = (direction) => {
