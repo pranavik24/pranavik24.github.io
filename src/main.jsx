@@ -6,7 +6,7 @@ import './styles.css';
 const asset = (file) => `${import.meta.env.BASE_URL}${file}`;
 
 const links = {
-  email: 'mailto:pranavi.kondapalli@gmail.com',
+  email: 'mailto:pkondapa@andrew.cmu.edu',
   github: 'https://github.com/pranavik24',
   linkedin: 'https://www.linkedin.com/in/pranavi-kondapalli/',
   resume: asset('resume.pdf'),
@@ -38,11 +38,10 @@ const projects = [
   {
     title: 'Portfolio',
     subtitle: 'You\'re looking at it right now ;)',
-    href: 'https://github.com/pranavik24/steel-city-bot',
     image: asset('portfolio_square.png'),
     plays: '518,024',
     duration: '2:58',
-    tags: ['React', 'Vite', 'JavaScript', 'CSS', 'HTML', 'Spotify API', 'FASTAPI'],
+    tags: ['React', 'Vite', 'JavaScript', 'CSS', 'HTML', 'Postgres', 'Spotify API', 'FASTAPI'],
     description:
         'Inspired by Spotify, this website is a central hub for my professional pursuits. As a collegiate-level dancer, music is a meaningful part of my life, and I wanted to bring the experience of discovering an artist into the way people explore my technical portfolio. I designed it to feel familiar, personal, and interactive while still highlighting the projects and experiences that define my work. Thanks for visiting!',
   },
@@ -267,6 +266,7 @@ function App() {
   const [projectPageCount, setProjectPageCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const contentPanelRef = useRef(null);
   const projectsCarouselRef = useRef(null);
   const funAnimationTimerRef = useRef(null);
   const isDark = theme === 'dark';
@@ -477,6 +477,23 @@ function App() {
     }
   };
 
+  const scrollToTop = (event) => {
+    event.preventDefault();
+    contentPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToContentSection = (event, sectionId) => {
+    event.preventDefault();
+    if (sectionId === 'profile') {
+      contentPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    contentPanelRef.current
+      ?.querySelector(`#${sectionId}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const scrollProjects = (direction) => {
     const carousel = projectsCarouselRef.current;
     const firstCard = carousel?.querySelector('.album-card');
@@ -587,7 +604,7 @@ function App() {
     <div className="spotify-shell" data-theme={theme}>
       <header className="top-bar" aria-label="Portfolio navigation">
         <div className="nav-center">
-          <a className="home-button" href="#profile" aria-label="Home">
+          <a className="home-button" href="#top" aria-label="Home" onClick={scrollToTop}>
             <Icon name="home" />
           </a>
           <div className="search-area">
@@ -674,21 +691,24 @@ function App() {
               <h2>Your Library</h2>
             </div>
             <a className="create-button" href={links.resume} target="_blank" rel="noreferrer">
-              <Icon name="download" />
               Resume
             </a>
           </div>
 
           <div className="chip-row" aria-label="Portfolio categories">
-            <a href="#experience">Work</a>
-            <a href="#projects">Projects</a>
-            <a href="#connect">Connect</a>
+            <a href="#experience" onClick={(event) => scrollToContentSection(event, 'experience')}>Work</a>
+            <a href="#projects" onClick={(event) => scrollToContentSection(event, 'projects')}>Projects</a>
+            <a href="#connect" onClick={(event) => scrollToContentSection(event, 'connect')}>Connect</a>
           </div>
 
           <ul className="library-list">
             {libraryItems.map((item) => (
               <li key={item.title}>
-                <a className={item.active ? 'active' : undefined} href={item.active ? '#profile' : '#projects'}>
+                <a
+                  className={item.active ? 'active' : undefined}
+                  href={item.active ? '#profile' : '#projects'}
+                  onClick={(event) => scrollToContentSection(event, item.active ? 'profile' : 'projects')}
+                >
                   <img src={item.image} alt="" />
                   <span>
                     <strong>{item.title}</strong>
@@ -705,7 +725,7 @@ function App() {
           </div>
         </aside>
 
-        <main className="content-panel" id="profile">
+        <main className="content-panel" id="profile" ref={contentPanelRef}>
           <section className="artist-hero" aria-label="Profile">
             <img className="hero-backdrop" src={asset('cmu_banner.jpg')} alt="" />
             <div className="hero-shade" />
@@ -860,7 +880,7 @@ function App() {
                   <img src={funImage} alt="" />
                 </button>
                 <p>{funListens.toLocaleString()} Listens</p>
-                <small>Thanks for visiting</small>
+                <small>Thanks for visiting!</small>
               </div>
             </div>
 
