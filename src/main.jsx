@@ -544,8 +544,8 @@ function App() {
     setActiveProjectIndex(clampedIndex);
   };
 
-  const endSeconds = selectedItem?.year ? 120 + Number(selectedItem.year.slice(-2)) : 0;
-  const endTime = selectedItem?.year ? `2:${selectedItem.year.slice(-2)}` : '';
+  const endSeconds = selectedItem ? 120 + (selectedItem.year ? Number(selectedItem.year.slice(-2)) : 0) : 0;
+  const endTime = selectedItem ? `2:${selectedItem.year ? selectedItem.year.slice(-2) : '00'}` : '';
   const progressPercent = endSeconds ? `${Math.min((elapsedSeconds / endSeconds) * 100, 100)}%` : '0%';
   const progressStyle = { '--progress': progressPercent };
   const formatTime = (seconds) => {
