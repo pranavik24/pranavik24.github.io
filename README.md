@@ -1,6 +1,9 @@
 # Portfolio
 
-My Portofolio containing all my experiences, projects, and research! 
+My Portfolio containing all my experiences, projects, and research! 
+
+Here's a link to my corner of the internet!
+[My Portfolio](https://pranavik24.github.io/)
 ## Local Development
 
 ```bash
