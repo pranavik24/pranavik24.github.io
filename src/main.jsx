@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { fetchLastFmTrack, getArtworkSources } from './lastFm';
 import { getFunListens, hasSharedCounter, incrementFunListens } from './sharedCounter';
 import './styles.css';
 
@@ -12,7 +13,22 @@ const links = {
   resume: asset('resume.pdf'),
 };
 
+const lastFmApiKey = import.meta.env.VITE_LASTFM_API_KEY;
+const lastFmUsername = import.meta.env.VITE_LASTFM_USERNAME;
+const hasLastFmConfig = Boolean(lastFmApiKey && lastFmUsername);
+
 const projects = [
+  {
+    title: 'ReForm',
+    subtitle: 'Personal Movement Aware Fitness Coach',
+    href: 'https://github.com/pranavik24/Exercise-Coach',
+    image: asset('reform.png'),
+    plays: '34,193',
+    duration: '3:42',
+    tags: [ 'Next.js', 'React', 'TypeScript', 'Gemini-API', 'OpenCV', 'MediaPipe Pose', 'Vercel'],
+    description:
+      'ReForm is a personal movement-awareness coach. It learns a fresh baseline from comfortable reps, tracks meaningful movement change during a set, and gives one useful focus for the next set.'
+  },
   {
     title: 'Octomind',
     subtitle: 'Calendar and Task Scheduling Assistant',
@@ -20,20 +36,9 @@ const projects = [
     image: asset('project1.png'),
     plays: '842,193',
     duration: '3:42',
-    tags: ['Ollama', 'Next.JS', 'React', 'TypeScript', 'Tailwind CSS', 'SHADCN UI', 'Framer Motion', 'Eslint'],
+    tags: ['Ollama', 'Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'shadcn/ui', 'Framer Motion', 'ESLint'],
     description:
       'OctoMind Calendar is an AI-powered calendar and task scheduling application that automatically organizes tasks throughout the week, helping users find time to complete homework, assignments, and other responsibilities before their due dates.'
-  },
-  {
-    title: 'SteelCityBot',
-    subtitle: 'RAG chatbot for Pittsburgh and CMU context',
-    href: 'https://github.com/pranavik24/steel-city-bot',
-    image: asset('github_profile.png'),
-    plays: '518,024',
-    duration: '2:58',
-    tags: ['RAG', 'Web Scraping', 'Data Ingestion', 'Pytorch', 'Sentence Transformers', 'Semantic Chunking', 'Sentence Aware Chunking', 'Hybrid Retrieval', 'FAISS', 'BM25', 'Langchain', 'Minstral', 'AWS', 'LLMs'],
-    description:
-      'A retrieval-augmented generation system that answers questions about Pittsburgh and CMU using hybrid retrieval and LLM response generation.',
   },
   {
     title: 'Portfolio',
@@ -41,7 +46,7 @@ const projects = [
     image: asset('portfolio_square.png'),
     plays: '518,024',
     duration: '2:58',
-    tags: ['React', 'Vite', 'JavaScript', 'CSS', 'HTML', 'Postgres', 'Spotify API', 'FASTAPI'],
+    tags: ['React', 'Vite', 'JavaScript', 'CSS', 'HTML', 'Postgres', 'Spotify API'],
     description:
         'Inspired by Spotify, this website is a central hub for my professional pursuits. As a collegiate-level dancer, music is a meaningful part of my life, and I wanted to bring the experience of discovering an artist into the way people explore my technical portfolio. I designed it to feel familiar, personal, and interactive while still highlighting the projects and experiences that define my work. Thanks for visiting!',
   },
@@ -52,9 +57,20 @@ const projects = [
     image: asset('thinkbeforetrust_square.png'),
     plays: '518,024',
     duration: '2:58',
-    tags: ['LLMs', 'Prompt Leaking', 'Pytorch', 'Hugging Face Transformers', 'Logistic Regression', 'Support Vector Machine (SVM)', 'Random Forest (RF)'],
+    tags: ['LLMs', 'Prompt Leaking', 'PyTorch', 'Hugging Face Transformers', 'Logistic Regression', 'Support Vector Machine (SVM)', 'Random Forest (RF)'],
     description:
       'This project investigates whether Chain-of-Thought (CoT) reasoning can serve as both a mitigation mechanism that reduces susceptibility to prompt injection attacks and an external detection signal for identifying compromised reasoning behavior.',
+  },
+    {
+    title: 'SteelCityBot',
+    subtitle: 'RAG chatbot for Pittsburgh and CMU context',
+    href: 'https://github.com/pranavik24/steel-city-bot',
+    image: asset('github_profile.png'),
+    plays: '518,024',
+    duration: '2:58',
+    tags: ['RAG', 'Web Scraping', 'Data Ingestion', 'PyTorch', 'Sentence Transformers', 'Semantic Chunking', 'Sentence Aware Chunking', 'Hybrid Retrieval', 'FAISS', 'BM25', 'LangChain', 'Mistral', 'AWS', 'LLMs'],
+    description:
+      'A retrieval-augmented generation system that answers questions about Pittsburgh and CMU using hybrid retrieval and LLM response generation.',
   },
   {
     title: 'Dynamic Storage Allocator',
@@ -64,11 +80,11 @@ const projects = [
     duration: '4:11',
     tags: ['C', 'GCC', 'GDB', 'Valgrind', 'Heap Optimization', 'Systems Programming'],
     description:
-      'This implementation for malloc supports the functionality to malloc, free, calloc, and realloc memory on the heap. To increase utilization and throughput, this implemenation uses segmented free lists, removed footers for allocated blocks, and a minimum block size of 16 bytes. Achieved mean utilization of 74% and throughput of 9186 Kops/sec (compared to benchmark of 74% utilization and throughput 8218 Kops/sec)',
+      'This implementation of malloc supports malloc, free, calloc, and realloc on the heap. To increase utilization and throughput, it uses segmented free lists, removes footers for allocated blocks, and keeps a minimum block size of 16 bytes. Achieved mean utilization of 74% and throughput of 9186 Kops/sec, compared to a benchmark of 74% utilization and 8218 Kops/sec.',
   },
     {
     title: 'Multithreaded Web Proxy',
-    subtitle: 'A tiny shell program with job control and I/O redirection',
+    subtitle: 'A concurrent HTTP proxy with thread-safe caching',
     image: asset('github_profile.png'),
     plays: '301,806',
     duration: '4:11',
@@ -84,7 +100,7 @@ const projects = [
     duration: '4:11',
     tags: ['C', 'GCC', 'GDB', 'Valgrind', 'LRU Eviction', 'Memory Addressing', 'Bit Manipulation', 'Systems Programming'],
     description:
-      'This stimulator takes in the parameters of the cache (number of sets, number of lines, number of bytes, trace file) through the command line, and reads the trace in a file provided in the command line. For each trace, it returns a report on the number of hits, misses, evictions, dirty bytes in cache at the end of simulation, and number of bytes evicted from dirty lines',
+      'This simulator takes cache parameters from the command line, including set count, line count, byte count, and trace file. For each trace, it reports hits, misses, evictions, dirty bytes remaining in cache, and bytes evicted from dirty lines.',
   },
     {
     title: 'Simple Linux Shell Implementation',
@@ -112,9 +128,20 @@ const projects = [
 
 const experiences = [
   {
+    role: 'Customer Success Engineer Intern',
+    team: 'IBM',
+    period: 'August 2026 - Present',
+    start: 'August 2026',
+    end: 'Present',
+    image: asset('ibm_logo.png'),
+    tags: [],
+    description:
+      'Working on the Experience Engineering team to develop AI solutions for IBM enterprise clients',
+  },
+  {
     role: 'Machine Learning Researcher',
     team: 'Machine Learning for Speech Processing Lab @ CMU',
-    period: 'May 2026 - Present',
+    period: 'May 2026 - August 2026',
     start: 'May 2026',
     end: 'Present',
     image: asset('mlsp_img.png'),
@@ -125,7 +152,7 @@ const experiences = [
   {
     role: 'NLP Intern - Human-Centered AI',
     team: 'AI-CARING Institute',
-    period: 'Mar 2026 - Present',
+    period: 'Mar 2026 - August 2026',
     start: 'Mar 2026',
     end: 'Present',
     image: asset('aicaring_logo.png'),
@@ -158,10 +185,10 @@ const experiences = [
 ];
 
 const currentSong = {
-  title: 'Midnight On My Mind',
-  artist: 'MANSA',
+  title: 'Best Song',
+  artist: 'Best Artist',
   album: '',
-  image: asset('midnightonmymind.jpeg'),
+  image: asset('default_song.png'),
   duration: '',
 };
 
@@ -173,6 +200,22 @@ const libraryItems = [
     active: true,
   },
 ];
+
+const getArtworkAlt = (item) => {
+  if (!item) {
+    return '';
+  }
+
+  if (item.type === 'project') {
+    return `${item.title} project artwork`;
+  }
+
+  if (item.type === 'experience') {
+    return `${item.title} at ${item.subtitle}`;
+  }
+
+  return `${item.title} ${item.type}`;
+};
 
 function Icon({ name }) {
   const icons = {
@@ -252,6 +295,7 @@ function Icon({ name }) {
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('portfolio-theme') || 'dark');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [isRepeatOn, setIsRepeatOn] = useState(false);
@@ -262,6 +306,9 @@ function App() {
   const [viewedItemIds, setViewedItemIds] = useState([]);
   const [funListens, setFunListens] = useState(0);
   const [isFunAnimating, setIsFunAnimating] = useState(false);
+  const [lastFmSong, setLastFmSong] = useState(null);
+  const [lastFmStatus, setLastFmStatus] = useState(hasLastFmConfig ? 'loading' : 'unconfigured');
+  const [artworkSourceIndex, setArtworkSourceIndex] = useState(0);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [projectPageCount, setProjectPageCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -269,11 +316,41 @@ function App() {
   const contentPanelRef = useRef(null);
   const projectsCarouselRef = useRef(null);
   const funAnimationTimerRef = useRef(null);
+  const detailCloseTimerRef = useRef(null);
   const isDark = theme === 'dark';
 
   useEffect(() => {
     localStorage.setItem('portfolio-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!hasLastFmConfig) {
+      return undefined;
+    }
+
+    let isMounted = true;
+    fetchLastFmTrack({ apiKey: lastFmApiKey, username: lastFmUsername })
+      .then((song) => {
+        if (isMounted) {
+          setLastFmSong(song);
+          setLastFmStatus(song ? 'ready' : 'empty');
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setLastFmStatus('error');
+          setToastMessage('Unable to load latest Last.fm track');
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    setArtworkSourceIndex(0);
+  }, [lastFmSong?.image]);
 
   useEffect(() => {
     const savedListens = localStorage.getItem('funListens');
@@ -294,7 +371,9 @@ function App() {
         }
       })
       .catch((error) => {
-        console.warn(error);
+        if (isMounted) {
+          setToastMessage(error.message);
+        }
       });
 
     return () => {
@@ -382,7 +461,9 @@ function App() {
   };
 
   const selectPlayableItem = (item) => {
+    window.clearTimeout(detailCloseTimerRef.current);
     setSelectedItem(item);
+    setIsDetailPanelOpen(true);
     setIsPlaying(true);
     setElapsedSeconds(0);
     setPlaybackMessage('');
@@ -396,8 +477,26 @@ function App() {
     setIsSearchOpen(false);
   };
 
+  const handleSearchKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setIsSearchOpen(false);
+      event.currentTarget.blur();
+    }
+  };
+
+  const closeDetailPanel = () => {
+    setIsDetailPanelOpen(false);
+    setIsPlaying(false);
+    window.clearTimeout(detailCloseTimerRef.current);
+    const closeDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240;
+    detailCloseTimerRef.current = window.setTimeout(() => {
+      setSelectedItem(null);
+      setElapsedSeconds(0);
+    }, closeDelay);
+  };
+
   const returnToNowListening = () => {
-    setSelectedItem(null);
+    closeDetailPanel();
     setIsPlaying(false);
     setElapsedSeconds(0);
     setPlaybackMessage('End of playlist');
@@ -473,7 +572,7 @@ function App() {
         localStorage.setItem('funListens', String(sharedListens));
       }
     } catch (error) {
-      console.warn(error);
+      setToastMessage(error.message);
     }
   };
 
@@ -546,8 +645,8 @@ function App() {
 
   const endSeconds = selectedItem ? 120 + (selectedItem.year ? Number(selectedItem.year.slice(-2)) : 0) : 0;
   const endTime = selectedItem ? `2:${selectedItem.year ? selectedItem.year.slice(-2) : '00'}` : '';
-  const progressPercent = endSeconds ? `${Math.min((elapsedSeconds / endSeconds) * 100, 100)}%` : '0%';
-  const progressStyle = { '--progress': progressPercent };
+  const progressValue = endSeconds ? Math.min((elapsedSeconds / endSeconds) * 100, 100) : 0;
+  const progressStyle = { '--progress-value': progressValue };
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -590,6 +689,30 @@ function App() {
     return () => window.removeEventListener('resize', updateProjectIndicator);
   }, []);
 
+  useEffect(
+    () => () => {
+      window.clearTimeout(detailCloseTimerRef.current);
+    },
+    [],
+  );
+
+  const lastListenedSong = lastFmSong
+    ? {
+        ...currentSong,
+        ...lastFmSong,
+        image: lastFmSong.image || currentSong.image,
+      }
+    : currentSong;
+  const artworkSources = getArtworkSources(lastListenedSong.image, currentSong.image);
+  const artworkSource = artworkSources[Math.min(artworkSourceIndex, artworkSources.length - 1)] || currentSong.image;
+  const handleArtworkError = () => {
+    setArtworkSourceIndex((index) => Math.min(index + 1, artworkSources.length - 1));
+  };
+  const lastFmStatusMessage = {
+    loading: 'Loading latest track…',
+    empty: 'No recent track found on Last.fm',
+    error: 'Last.fm unavailable — showing fallback track',
+  }[lastFmStatus];
   const nowPlaying = selectedItem
     ? {
         title: selectedItem.title,
@@ -597,7 +720,7 @@ function App() {
         image: selectedItem.image,
         duration: selectedItem.duration,
       }
-    : currentSong;
+    : { ...lastListenedSong, image: artworkSource };
   const funImage = isFunAnimating ? asset('fun_light_ani.PNG') : asset('fun_light.PNG');
 
   return (
@@ -615,13 +738,16 @@ function App() {
                 value={searchQuery}
                 placeholder="Search projects, skills, or experience"
                 aria-label="Search portfolio by tag"
+                aria-autocomplete="list"
                 aria-expanded={isSearchOpen && searchResults.length > 0}
                 aria-controls="search-results"
+                role="combobox"
                 onChange={(event) => {
                   setSearchQuery(event.target.value);
                   setIsSearchOpen(true);
                 }}
                 onFocus={() => setIsSearchOpen(true)}
+                onKeyDown={handleSearchKeyDown}
               />
               {searchQuery ? (
                 <button
@@ -644,10 +770,11 @@ function App() {
                     type="button"
                     key={item.id}
                     role="option"
+                    aria-selected={selectedItem?.id === item.id}
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => selectSearchResult(item)}
                   >
-                    <img src={item.image} alt="" />
+                    <img src={item.image} alt={getArtworkAlt(item)} />
                     <span>
                       <strong>{item.title}</strong>
                       <small>
@@ -709,7 +836,7 @@ function App() {
                   href={item.active ? '#profile' : '#projects'}
                   onClick={(event) => scrollToContentSection(event, item.active ? 'profile' : 'projects')}
                 >
-                  <img src={item.image} alt="" />
+                  <img src={item.image} alt={`${item.title} ${item.type}`} />
                   <span>
                     <strong>{item.title}</strong>
                     <small>{item.type}</small>
@@ -764,7 +891,7 @@ function App() {
               <Icon name={selectedItem && isPlaying ? 'pause' : 'play'} />
             </button>
             <a className="cover-chip" href={links.github} target="_blank" rel="noreferrer">
-              <img src={asset('github_profile.png')} alt="" />
+              <img src={asset('github_profile.png')} alt="GitHub profile" />
             </a>
             <a className="follow-button" href={links.resume} target="_blank" rel="noreferrer">
               Resume
@@ -791,7 +918,7 @@ function App() {
                     onClick={() => selectPlayableItem(playableById.get(`experience-${experience.role}`))}
                   >
                     <span className="track-number">{index + 1}</span>
-                    <img src={experience.image} alt="" />
+                    <img src={experience.image} alt={`${experience.role} at ${experience.team}`} />
                     <span className="track-main">
                       <strong>{experience.role}</strong>
                       <small>{experience.team}</small>
@@ -829,7 +956,7 @@ function App() {
                   key={project.title}
                   onClick={() => selectPlayableItem(playableById.get(`project-${project.title}`))}
                 >
-                  <img src={project.image} alt="" />
+                  <img src={project.image} alt={`${project.title} project artwork`} />
                   <h3>{project.title}</h3>
                   <p>{project.subtitle}</p>
                   <small className="card-tags">
@@ -877,7 +1004,7 @@ function App() {
               <div className="fun-listens">
                 {/* <span className="click-me-arrow">click me ↘</span> */}
                 <button type="button" aria-label="Add a listen" onClick={handleFunListen}>
-                  <img src={funImage} alt="" />
+                  <img src={funImage} alt="Interactive listen counter artwork" />
                 </button>
                 <p>{funListens.toLocaleString()} Listens</p>
                 <small>Thanks for visiting!</small>
@@ -886,11 +1013,20 @@ function App() {
 
             <div className="panel-card contact-card" id="now-listening">
               <div className="section-title-row">
-                <h2>Last Listened To:</h2>
+                <h2>{lastListenedSong.isNowPlaying ? 'Now Playing:' : 'Last Listened To:'}</h2>
               </div>
-              <img src={currentSong.image} alt="" />
-              <h3>{currentSong.title}</h3>
-              <p>{[currentSong.artist, currentSong.album, currentSong.duration].filter(Boolean).join(' · ')}</p>
+              <img
+                src={artworkSource}
+                alt={`${lastListenedSong.title} cover art`}
+                onError={handleArtworkError}
+              />
+              <h3>{lastListenedSong.title}</h3>
+              <p>{[lastListenedSong.artist, lastListenedSong.album, lastListenedSong.duration].filter(Boolean).join(' · ')}</p>
+              {lastFmStatusMessage ? (
+                <div className="song-status" role="status">
+                  {lastFmStatusMessage}
+                </div>
+              ) : null}
               {playbackMessage ? (
                 <div className="song-status">
                   <Icon name="check" />
@@ -902,21 +1038,25 @@ function App() {
         </main>
 
         {selectedItem ? (
-          <aside className="experience-detail-panel" key={selectedItem.id} aria-label="Selected item details">
+          <aside
+            className="experience-detail-panel"
+            key={selectedItem.id}
+            data-state={isDetailPanelOpen ? 'open' : 'closing'}
+            aria-hidden={!isDetailPanelOpen}
+            inert={!isDetailPanelOpen ? true : undefined}
+            aria-label="Selected item details"
+          >
             <div className="detail-heading">
               <h2>{selectedItem.title}</h2>
               <button
                 type="button"
                 aria-label="Close details"
-                onClick={() => {
-                  setSelectedItem(null);
-                  setIsPlaying(false);
-                }}
+                onClick={closeDetailPanel}
               >
                 ×
               </button>
             </div>
-            <img src={selectedItem.image} alt="" />
+            <img src={selectedItem.image} alt={getArtworkAlt(selectedItem)} />
             <p className="detail-team">{selectedItem.subtitle}</p>
             {selectedItem.type === 'experience' ? (
               <p className="detail-period">{selectedItem.period}</p>
@@ -939,7 +1079,7 @@ function App() {
 
       <footer className="player-bar" aria-label="Footer">
         <div className="now-playing">
-          <img src={nowPlaying.image} alt="" />
+          <img src={nowPlaying.image} alt={`${nowPlaying.title} artwork`} />
           <span>
             <strong>{nowPlaying.title}</strong>
             <small>{nowPlaying.artist}</small>

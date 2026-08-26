@@ -11,6 +11,15 @@ pnpm install
 pnpm dev
 ```
 
+To show the latest track from Last.fm, add the following values to `.env.local`:
+
+```bash
+VITE_LASTFM_API_KEY=your-last-fm-api-key
+VITE_LASTFM_USERNAME=your-last-fm-username
+```
+
+The Last.fm values are read at build time by Vite, so restart the dev server after changing them.
+
 ## Build
 
 ```bash
