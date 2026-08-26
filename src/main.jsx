@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { fetchLastFmTrack, getArtworkSources } from './lastFm';
+import { fetchLastFmTrack, getArtworkSources, parseLastFmDuration } from './lastFm';
 import { getFunListens, hasSharedCounter, incrementFunListens } from './sharedCounter';
 import './styles.css';
 
@@ -643,15 +643,26 @@ function App() {
     setActiveProjectIndex(clampedIndex);
   };
 
-  const endSeconds = selectedItem ? 120 + (selectedItem.year ? Number(selectedItem.year.slice(-2)) : 0) : 0;
-  const endTime = selectedItem ? `2:${selectedItem.year ? selectedItem.year.slice(-2) : '00'}` : '';
-  const progressValue = endSeconds ? Math.min((elapsedSeconds / endSeconds) * 100, 100) : 0;
-  const progressStyle = { '--progress-value': progressValue };
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
   };
+  const lastListenedSong = lastFmSong
+    ? {
+        ...currentSong,
+        ...lastFmSong,
+        image: lastFmSong.image || currentSong.image,
+      }
+    : currentSong;
+  const selectedItemDurationSeconds = selectedItem
+    ? 120 + (selectedItem.year ? Number(selectedItem.year.slice(-2)) : 0)
+    : 0;
+  const lastListenedDurationSeconds = parseLastFmDuration(lastListenedSong.duration);
+  const endSeconds = selectedItem ? selectedItemDurationSeconds : lastListenedDurationSeconds;
+  const endTime = endSeconds ? formatTime(endSeconds) : '0:00';
+  const progressValue = endSeconds ? Math.min((elapsedSeconds / endSeconds) * 100, 100) : 0;
+  const progressStyle = { '--progress-value': progressValue };
 
   useEffect(() => {
     if (!isPlaying || !selectedItem || !endSeconds) {
@@ -696,13 +707,6 @@ function App() {
     [],
   );
 
-  const lastListenedSong = lastFmSong
-    ? {
-        ...currentSong,
-        ...lastFmSong,
-        image: lastFmSong.image || currentSong.image,
-      }
-    : currentSong;
   const artworkSources = getArtworkSources(lastListenedSong.image, currentSong.image);
   const artworkSource = artworkSources[Math.min(artworkSourceIndex, artworkSources.length - 1)] || currentSong.image;
   const handleArtworkError = () => {
@@ -1021,7 +1025,7 @@ function App() {
                 onError={handleArtworkError}
               />
               <h3>{lastListenedSong.title}</h3>
-              <p>{[lastListenedSong.artist, lastListenedSong.album, lastListenedSong.duration].filter(Boolean).join(' · ')}</p>
+              <p>{[lastListenedSong.artist, lastListenedSong.album].filter(Boolean).join(' · ')}</p>
               {lastFmStatusMessage ? (
                 <div className="song-status" role="status">
                   {lastFmStatusMessage}

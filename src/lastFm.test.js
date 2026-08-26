@@ -7,6 +7,7 @@ import {
   formatLastFmDuration,
   getArtworkSources,
   normalizeLastFmTrack,
+  parseLastFmDuration,
 } from './lastFm.js';
 
 describe('Last.fm integration', () => {
@@ -43,6 +44,13 @@ describe('Last.fm integration', () => {
     assert.equal(formatLastFmDuration('215000'), '3:35');
     assert.equal(formatLastFmDuration(60000), '1:00');
     assert.equal(formatLastFmDuration(''), '');
+  });
+
+  it('parses a formatted duration into seconds for the player timeline', () => {
+    assert.equal(parseLastFmDuration('3:35'), 215);
+    assert.equal(parseLastFmDuration('0:07'), 7);
+    assert.equal(parseLastFmDuration('3:60'), 0);
+    assert.equal(parseLastFmDuration(''), 0);
   });
 
   it('normalizes the latest track and chooses the largest available artwork', () => {

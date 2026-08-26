@@ -82,6 +82,21 @@ export function formatLastFmDuration(durationMilliseconds) {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
+export function parseLastFmDuration(duration) {
+  const match = /^(\d+):(\d{2})$/.exec(String(duration || '').trim());
+  if (!match) {
+    return 0;
+  }
+
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+  if (seconds > 59) {
+    return 0;
+  }
+
+  return minutes * 60 + seconds;
+}
+
 export function normalizeLastFmTrack(payload) {
   const track = payload?.recenttracks?.track?.[0];
   if (!track) {
