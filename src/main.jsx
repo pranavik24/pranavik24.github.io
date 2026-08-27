@@ -128,7 +128,7 @@ const projects = [
 
 const experiences = [
   {
-    role: 'Customer Success Engineer Intern',
+    role: 'AI Customer Success Engineer Intern',
     team: 'IBM',
     period: 'August 2026 - Present',
     start: 'August 2026',
